@@ -26,6 +26,14 @@ int IR5 = 0;
 // For any pin, when should we detect that a candle is within our sight?
 const int CANDLE_DETECT_THRESHOLD = 500;
 
+// Program Functionality
+enum ProgramMode { cube_finding, cube_grabbing, wall_detecting, cube_tossing };
+ProgramMode programMode = cube_finding;
+
+unsigned long CUBE_DETECT_THRESHOLD = 30;
+unsigned long clawSonicDistance = 10000;
+unsigned long wallSonicDistance = 10000;
+
 
 // -- MARK: FUNCTION IMPLEMENTATION
 
@@ -36,7 +44,30 @@ void setup() {
 } 
 
 void loop() {
-  wallSwitchTest();
+
+  if (programMode == cube_finding) {
+    armDown();
+    clawOpen();
+    scanDistances();
+    // Turn slowly CCW slowly until we detect a cube
+    setLeft(-100);
+    setRight(100);
+
+    if (clawSonicDistance < CUBE_DETECT_THRESHOLD) {
+      programMode = cube_grabbing;
+      Serial.println()
+      return;
+    }
+  }
+
+  if (programMode == cube_grabbing) {
+    scanDistances();
+
+    if (clawSonicDistance < CUBE_DETECT_THRESHOLD) {
+      // Move forward slowly while we detect the cube
+      setLeft()
+    }
+  }
 }
 
 void attachServos() {
@@ -101,6 +132,23 @@ void setRight(int s) {
 
   s = abs(s);
   analogWrite(motorRightPWM, s);
+}
+
+// Ultrasonic
+
+void scanDistances() {
+
+  clawSonicDistance = clawSonic.ping_cm();
+  delay(30);
+  wallSonicDistance = wallSonic.ping_cm();
+
+  if (clawSonicDistance == 0) {
+    clawSonicDistance = 10000;
+  }
+
+  if (wallSonicDistance == 0) {
+    wallSonicDistance = 10000;
+  }
 }
 
 // Wall Switch

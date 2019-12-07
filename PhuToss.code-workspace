@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "PhuToss-PlatformIO"
+		},
+		{
+			"name": "ESP32_wireless_debugger",
+			"path": "ESP32_wireless_debugger"
+		}
+	],
+	"settings": {}
+}

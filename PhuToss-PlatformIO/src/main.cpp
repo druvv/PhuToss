@@ -31,31 +31,32 @@ const int CANDLE_DETECT_THRESHOLD = 500;
 
 void setup() {
   attachServos();
+  pinMode(wallSwitchPin, INPUT);
   Serial.begin(9600);
 } 
 
 void loop() {
-  armTest();
+  wallSwitchTest();
 }
 
 void attachServos() {
   leftArmServo.attach(leftArmServoPin);
   rightArmServo.attach(rightArmServoPin);
   clawServo.attach(clawServoPin);
-  //armDown();
+  armDown();
   clawOpen();
 }
 
 // Arm
 
 void armDown() {
-  leftArmServo.write(155); // TODO: Test whether test1Servo refers to left or right
-  rightArmServo.write(10);
+  leftArmServo.write(10); // TODO: Test whether test1Servo refers to left or right
+  rightArmServo.write(155);
 }
 
 void armUp() {
-  leftArmServo.write(85); 
-  rightArmServo.write(95);
+  leftArmServo.write(130); 
+  rightArmServo.write(55);
 }
 
 // Claw
@@ -67,6 +68,47 @@ void clawOpen() {
 void clawClose() {
   clawServo.write(35);
 }
+
+// Motors
+
+void setLeft(int s) {
+  if (s > 0) {
+    digitalWrite(motorLeftA, LOW);
+    digitalWrite(motorLeftB, HIGH);
+  } else if (s < 0) {
+    digitalWrite(motorLeftA, HIGH);
+    digitalWrite(motorLeftB, LOW);
+  } else {
+    digitalWrite(motorLeftA, LOW);
+    digitalWrite(motorLeftB, LOW);
+  }
+
+  s = abs(s);
+  analogWrite(motorLeftPWM, s);
+}
+
+void setRight(int s) {
+  if (s > 0) {
+    digitalWrite(motorRightA, HIGH);
+    digitalWrite(motorRightB, LOW);
+  } else if (s < 0)  {
+    digitalWrite(motorRightA, LOW);
+    digitalWrite(motorRightB, HIGH);
+  } else {
+    digitalWrite(motorRightA, LOW);
+    digitalWrite(motorRightB, LOW);
+  }
+
+  s = abs(s);
+  analogWrite(motorRightPWM, s);
+}
+
+// Wall Switch
+
+bool isTouchingWall() {
+  return digitalRead(wallSwitchPin) == HIGH;
+}
+
 
 // IR 
 

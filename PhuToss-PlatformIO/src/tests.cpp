@@ -45,6 +45,45 @@
     delay(3000);
  }
 
- void ultrasonicTests() {
-     
+ unsigned long clawDist = 0;
+ unsigned long wallDist = 0;
+
+ void ultrasonicTest() {
+      clawDist = clawSonic.ping_cm();
+      delay(30);
+      Serial.print("Claw Dist: "); Serial.println(clawDist);
+      delay(1000);
+
+      wallDist = wallSonic.ping_cm();
+      delay(30);
+      Serial.print("Wall Dist: "); Serial.println(wallDist);
+      delay(1000);
+ }
+
+ void driveTrainTest() {
+    Serial.println("Testing left only f");
+    setLeft(150);
+    setRight(0);
+    delay(2000);
+    Serial.println("Testing left only b");
+    setLeft(-150);
+    setRight(0);
+    delay(2000);
+    Serial.println("Testing right only f");
+    setLeft(0);
+    setRight(150);
+    delay(2000);
+    Serial.println("Testing right only b");
+    setLeft(0);
+    setRight(-150);
+    delay(2000);
+ }
+
+ void wallSwitchTest() {
+    if (isTouchingWall()) {
+       Serial.println("Touching wall");
+    } else {
+       Serial.println("Not touching wall");
+    }
+    delay(500);
  }

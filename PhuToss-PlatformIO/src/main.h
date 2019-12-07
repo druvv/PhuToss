@@ -1,14 +1,8 @@
-#include <Servo.h>
 #include "NewPing.h"
 
-// - MARK: Motor Definitions
+// Ultrasonic for testing
 extern NewPing clawSonic;
 extern NewPing wallSonic;
-
-// Claw / Arm
-extern Servo leftArmServo;
-extern Servo rightArmServo;
-extern Servo clawServo;
 
 // - MARK: Method Definition
 
@@ -26,6 +20,9 @@ void armDown();
 // Claw
 void clawOpen();
 void clawClose();
+
+// Wall Switch
+bool isTouchingWall();
 
 // IR
 void scanIR();

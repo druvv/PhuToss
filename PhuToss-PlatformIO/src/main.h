@@ -1,4 +1,14 @@
+#include <Servo.h>
+#include "NewPing.h"
 
+// - MARK: Motor Definitions
+extern NewPing clawSonic;
+extern NewPing wallSonic;
+
+// Claw / Arm
+extern Servo leftArmServo;
+extern Servo rightArmServo;
+extern Servo clawServo;
 
 // - MARK: Method Definition
 

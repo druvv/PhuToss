@@ -3,7 +3,7 @@
 #include "NewPing.h"
 
 #include "main.h"
-#include "servoCenterTest.h"
+#include "tests.h"
 #include "pins.h"
 
 // Ultrasonic
@@ -31,17 +31,18 @@ const int CANDLE_DETECT_THRESHOLD = 500;
 
 void setup() {
   attachServos();
-}
+  Serial.begin(9600);
+} 
 
 void loop() {
-  servoCenterTest();
+  armTest();
 }
 
 void attachServos() {
   leftArmServo.attach(leftArmServoPin);
   rightArmServo.attach(rightArmServoPin);
   clawServo.attach(clawServoPin);
-  armUp();
+  //armDown();
   clawOpen();
 }
 
@@ -60,11 +61,11 @@ void armUp() {
 // Claw
 
 void clawOpen() {
-  // Do something with the claw servo
+  clawServo.write(80);
 }
 
 void clawClose() {
-  // Do something with the claw servo
+  clawServo.write(35);
 }
 
 // IR 

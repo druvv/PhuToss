@@ -1,7 +1,8 @@
 
  #include <Arduino.h>
  #include <Servo.h>
- #include "servoCenterTest.h"
+ #include "tests.h"
+ #include "main.h"
 
  const int servo1Pin = 10;
  const int servo2Pin = 5;
@@ -24,4 +25,26 @@
     test1Servo.write(155); 
     test2Servo.write(10);
     delay(2000);
+ }
+
+ void clawTest() {
+    Serial.println("Testing claw open");
+    clawOpen();
+    delay(1000);
+    Serial.println("Testing claw close");
+    clawClose();
+    delay(1000);
+ }
+
+  void armTest() {
+    Serial.println("Testing arm up");
+    armUp();
+    delay(3000);
+    Serial.println("Testing arm down");
+    armDown();
+    delay(3000);
+ }
+
+ void ultrasonicTests() {
+     
  }

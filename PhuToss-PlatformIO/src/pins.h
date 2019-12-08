@@ -1,11 +1,11 @@
 #include <Arduino.h>
 
 // Motors
-const int motorRightPWM = 40;
+const int motorRightPWM = 6;
 const int motorRightA = 42;
 const int motorRightB = 44;
 
-const int motorLeftPWM = 50;
+const int motorLeftPWM = 7;
 const int motorLeftA = 46;
 const int motorLeftB = 48;
 

@@ -4,10 +4,15 @@
 extern NewPing clawSonic;
 extern NewPing wallSonic;
 
+enum ProgramMode { cube_finding, cube_grabbing, wall_detecting, cube_tossing };
+
 // - MARK: Method Definition
 
 // Setup
 void attachServos();
+
+// Program Mode
+void switchProgramMode(ProgramMode);
 
 // Motors
 void setLeft(int s);
@@ -23,6 +28,9 @@ void clawClose();
 
 // Wall Switch
 bool isTouchingWall();
+
+// Ultrasonic
+void scanDistances();
 
 // IR
 void scanIR();

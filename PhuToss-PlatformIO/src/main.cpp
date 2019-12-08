@@ -27,35 +27,73 @@ int IR5 = 0;
 const int CANDLE_DETECT_THRESHOLD = 500;
 
 // Program Functionality
-enum ProgramMode { cube_finding, cube_grabbing, wall_detecting, cube_tossing };
+char *ProgramTypes[] =
+{
+    "cube_finding",
+    "cube_grabbing",
+    "wall_detecting",
+    "cube_tossing"
+};
 ProgramMode programMode = cube_finding;
 
-unsigned long CUBE_DETECT_THRESHOLD = 30;
+unsigned long CUBE_DETECT_THRESHOLD = 60;
 unsigned long clawSonicDistance = 10000;
 unsigned long wallSonicDistance = 10000;
+
+unsigned long currTime = 0;
+
+const int turnSpeed = 110;
+
+// false - CCW, true - CW
+bool scanDirectionCW = false;
+unsigned long lastScanDirectionChange = 0;
+unsigned long lastCubeFound = 0;
+unsigned long SCAN_DIRECTION_TIMEOUT = 300; // How long the bot scans in a certain direction from the start
+unsigned long LOST_CUBE_TIMEOUT = 10000; // 10s
+
+// CUBE - GRABBING
+bool firstScan = true;
+
+/*
+
+Timer Usage:
+- Servos - Timer 5
+- NewPing - Timer 2
+
+https://www.arduino.cc/en/Main/arduinoBoardMega/
+https://oscarliang.com/arduino-timer-and-interrupt-tutorial/ (see PWM and timer section)
+*/
 
 
 // -- MARK: FUNCTION IMPLEMENTATION
 
 void setup() {
   attachServos();
-  pinMode(wallSwitchPin, INPUT);
+  pinMode(wallSwitchPin, INPUT_PULLUP);
   Serial.begin(9600);
+
+  delay(5000);
 } 
+
+// void loop() {
+//   driveTrainTest();
+// }
 
 void loop() {
 
+  currTime = millis();
+
   if (programMode == cube_finding) {
+    Serial.println("Finding cube");
     armDown();
     clawOpen();
     scanDistances();
     // Turn slowly CCW slowly until we detect a cube
-    setLeft(-100);
-    setRight(100);
+    setLeft(-turnSpeed);
+    setRight(turnSpeed);
 
     if (clawSonicDistance < CUBE_DETECT_THRESHOLD) {
-      programMode = cube_grabbing;
-      Serial.println()
+      switchProgramMode(cube_grabbing);
       return;
     }
   }
@@ -64,10 +102,87 @@ void loop() {
     scanDistances();
 
     if (clawSonicDistance < CUBE_DETECT_THRESHOLD) {
+      // Reset scanning timing stuff
+      firstScan = true;
+      lastScanDirectionChange = currTime;
+      scanDirectionCW = true;
+
+      lastCubeFound = currTime;
+
+      Serial.println("Found cube");
       // Move forward slowly while we detect the cube
-      setLeft()
+      setLeft(turnSpeed);
+      setRight(turnSpeed);
+      if (clawSonicDistance < 10) {
+        Serial.println("Grabbing cube");
+        // Move forward a little more
+        setLeft(turnSpeed);
+        setRight(turnSpeed);
+        delay(250);
+        setLeft(0);
+        setRight(0);
+        delay(1000);
+        clawClose();
+        delay(2000);
+        armUp();
+        switchProgramMode(wall_detecting);
+      }
+    } else {
+      Serial.println("Lost cube");
+
+      if (currTime - lastCubeFound > LOST_CUBE_TIMEOUT) {
+        switchProgramMode(cube_finding);
+        return;
+      }
+
+      if (firstScan && (currTime - lastScanDirectionChange) > SCAN_DIRECTION_TIMEOUT) {
+        // On the first scan, only move 50% away from center.
+        firstScan = false;
+        lastScanDirectionChange = currTime;
+        scanDirectionCW = !scanDirectionCW;
+      } else if ((currTime - lastScanDirectionChange) > SCAN_DIRECTION_TIMEOUT * 2) {
+        // On successive scans, move the entire distance to scan the entire range from one direction.
+        lastScanDirectionChange = currTime;
+        scanDirectionCW = !scanDirectionCW;
+      }
+
+      if (scanDirectionCW) {
+        setLeft(turnSpeed);
+        setRight(-turnSpeed);
+      } else { 
+        setLeft(-turnSpeed);
+        setRight(turnSpeed);
+      }
     }
   }
+
+  if (programMode == wall_detecting) {
+    // Spin once, drop cube
+
+    setLeft(-turnSpeed);
+    setRight(turnSpeed);
+    delay(2000);
+
+    setLeft(0);
+    setRight(0);
+    delay(250);
+
+    clawOpen();
+
+    switchProgramMode(cube_tossing);
+  }
+
+  if (programMode == cube_tossing) {
+    // Do nothing
+    delay(1000);
+  }
+}
+
+void switchProgramMode(ProgramMode mode) {
+  char buffer[50];
+  sprintf(buffer, "PROGRAM MODE: %s", ProgramTypes[mode]);
+  Serial.println(buffer);
+  programMode = mode;
 }
 
 void attachServos() {
@@ -97,7 +212,7 @@ void clawOpen() {
 }
 
 void clawClose() {
-  clawServo.write(35);
+  clawServo.write(25);
 }
 
 // Motors
@@ -154,7 +269,7 @@ void scanDistances() {
 // Wall Switch
 
 bool isTouchingWall() {
-  return digitalRead(wallSwitchPin) == HIGH;
+  return digitalRead(wallSwitchPin) == LOW;
 }
 
 

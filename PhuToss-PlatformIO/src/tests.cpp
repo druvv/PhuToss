@@ -1,6 +1,6 @@
 
  #include <Arduino.h>
- #include <Servo.h>
+ #include "Servo.h"
  #include "tests.h"
  #include "main.h"
 
@@ -62,6 +62,10 @@
 
  void driveTrainTest() {
     Serial.println("Testing left only f");
+    setLeft(255);
+    setRight(0);
+    delay(2000);
+    Serial.println("Testing left only f slow");
     setLeft(150);
     setRight(0);
     delay(2000);
@@ -85,5 +89,5 @@
     } else {
        Serial.println("Not touching wall");
     }
-    delay(500);
+    delay(250);
  }
